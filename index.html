@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>今天吃什么 - CYBERPUNK 2026</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-blue: #00f3ff;
+            --neon-pink: #ff00ff;
+            --neon-purple: #9d00ff;
+            --neon-cyan: #00ffff;
+            --dark-bg: #0a0a0f;
+            --darker-bg: #050508;
+            --card-bg: rgba(15, 15, 25, 0.8);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: linear-gradient(135deg, var(--darker-bg) 0%, #0d0d1a 50%, var(--darker-bg) 100%);
+            color: var(--neon-cyan);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 243, 255, 0.03) 0px,
+                rgba(0, 243, 255, 0.03) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            pointer-events: none;
+            z-index: 1000;
+            animation: scan 8s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(10px); }
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: var(--neon-blue);
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            margin-bottom: 10px;
+            text-shadow:
+                0 0 10px var(--neon-blue),
+                0 0 20px var(--neon-blue),
+                0 0 40px var(--neon-blue),
+                0 0 80px var(--neon-blue);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                text-shadow:
+                    0 0 10px var(--neon-blue),
+                    0 0 20px var(--neon-blue),
+                    0 0 40px var(--neon-blue);
+            }
+            to {
+                text-shadow:
+                    0 0 20px var(--neon-blue),
+                    0 0 30px var(--neon-blue),
+                    0 0 60px var(--neon-blue),
+                    0 0 100px var(--neon-blue);
+            }
+        }
+
+        .glitch {
+            position: relative;
+        }
+
+        .glitch::before,
+        .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .glitch::before {
+            left: 2px;
+            text-shadow: -2px 0 var(--neon-pink);
+            clip: rect(24px, 550px, 90px, 0);
+            animation: glitch-anim 3s infinite linear alternate-reverse;
+        }
+
+        .glitch::after {
+            left: -2px;
+            text-shadow: -2px 0 var(--neon-cyan);
+            clip: rect(85px, 550px, 140px, 0);
+            animation: glitch-anim 2.5s infinite linear alternate-reverse;
+        }
+
+        @keyframes glitch-anim {
+            0% { clip: rect(61px, 9999px, 91px, 0); }
+            20% { clip: rect(35px, 9999px, 71px, 0); }
+            40% { clip: rect(105px, 9999px, 38px, 0); }
+            60% { clip: rect(8px, 9999px, 128px, 0); }
+            80% { clip: rect(79px, 9999px, 15px, 0); }
+            100% { clip: rect(26px, 9999px, 84px, 0); }
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            color: var(--neon-purple);
+            letter-spacing: 8px;
+            text-transform: uppercase;
+            font-weight: 300;
+        }
+
+        main {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .result-container {
+            background: var(--card-bg);
+            border: 2px solid var(--neon-blue);
+            border-radius: 20px;
+            padding: 60px 40px;
+            position: relative;
+            overflow: hidden;
+            box-shadow:
+                0 0 20px rgba(0, 243, 255, 0.3),
+                inset 0 0 40px rgba(0, 243, 255, 0.05);
+        }
+
+        .result-container::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple), var(--neon-pink), var(--neon-cyan));
+            border-radius: 20px;
+            opacity: 0;
+            z-index: -1;
+            transition: opacity 0.3s;
+            animation: rotate 4s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        .result {
+            text-align: center;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .result-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--neon-cyan);
+            text-shadow: 0 0 20px var(--neon-cyan);
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .selecting {
+            animation: pulse 0.3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .button-group {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .cyber-button {
+            position: relative;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            padding: 18px 45px;
+            background: transparent;
+            border: 2px solid var(--neon-blue);
+            color: var(--neon-cyan);
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            overflow: hidden;
+            transition: all 0.3s;
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+        }
+
+        .cyber-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 243, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .cyber-button:hover::before {
+            left: 100%;
+        }
+
+        .cyber-button:hover {
+            background: rgba(0, 243, 255, 0.1);
+            box-shadow:
+                0 0 20px var(--neon-blue),
+                inset 0 0 20px rgba(0, 243, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .cyber-button:active {
+            transform: translateY(0);
+        }
+
+        .cyber-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .cyber-button.secondary {
+            border-color: var(--neon-purple);
+            color: var(--neon-purple);
+        }
+
+        .cyber-button.secondary:hover {
+            background: rgba(157, 0, 255, 0.1);
+            box-shadow:
+                0 0 20px var(--neon-purple),
+                inset 0 0 20px rgba(157, 0, 255, 0.2);
+        }
+
+        .button-text {
+            position: relative;
+            z-index: 1;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            background: var(--card-bg);
+            border: 1px solid var(--neon-purple);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(157, 0, 255, 0.2);
+        }
+
+        .stat-label {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--neon-purple);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .stat-value {
+            display: block;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--neon-cyan);
+            text-shadow: 0 0 10px var(--neon-cyan);
+        }
+
+        .manage-section {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 30px;
+        }
+
+        .add-form,
+        .restaurant-list {
+            background: var(--card-bg);
+            border: 2px solid var(--neon-blue);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
+        }
+
+        .add-form h2,
+        .restaurant-list h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            color: var(--neon-blue);
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--neon-purple);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--neon-cyan);
+            border-radius: 5px;
+            color: var(--neon-cyan);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
+        }
+
+        .hint {
+            display: block;
+            font-size: 0.75rem;
+            color: rgba(0, 243, 255, 0.6);
+            margin-top: 5px;
+        }
+
+        .items-container {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .items-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .items-container::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+        }
+
+        .items-container::-webkit-scrollbar-thumb {
+            background: var(--neon-blue);
+            border-radius: 4px;
+        }
+
+        .restaurant-item {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--neon-purple);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .restaurant-item:hover {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
+            transform: translateX(5px);
+        }
+
+        .restaurant-info {
+            flex: 1;
+        }
+
+        .restaurant-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            color: var(--neon-cyan);
+            margin-bottom: 5px;
+        }
+
+        .restaurant-weight {
+            font-size: 0.9rem;
+            color: var(--neon-purple);
+        }
+
+        .weight-bar {
+            height: 4px;
+            background: rgba(0, 243, 255, 0.2);
+            border-radius: 2px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .weight-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-cyan));
+            box-shadow: 0 0 10px var(--neon-cyan);
+            transition: width 0.3s;
+        }
+
+        .restaurant-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            padding: 8px 15px;
+            background: transparent;
+            border: 1px solid var(--neon-pink);
+            color: var(--neon-pink);
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 0, 255, 0.2);
+            box-shadow: 0 0 10px var(--neon-pink);
+        }
+
+        .empty-message {
+            text-align: center;
+            color: rgba(0, 243, 255, 0.5);
+            padding: 40px 20px;
+            font-style: italic;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(0, 243, 255, 0.2);
+            color: rgba(0, 243, 255, 0.5);
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 243, 255, 0.9);
+            color: #000;
+            padding: 15px 25px;
+            border-radius: 5px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.5);
+            z-index: 10000;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+                letter-spacing: 3px;
+            }
+
+            .result-text {
+                font-size: 1.8rem;
+            }
+
+            .manage-section {
+                grid-template-columns: 1fr;
+            }
+
+            .cyber-button {
+                padding: 15px 30px;
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .result-container {
+                padding: 40px 20px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .cyber-button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="scanlines"></div>
+    <div class="container">
+        <!-- 主页 -->
+        <div id="homePage" class="page active">
+            <header>
+                <h1 class="glitch" data-text="今天吃什么？">今天吃什么？</h1>
+                <p class="subtitle">MEAL SELECTOR V2.0</p>
+            </header>
+
+            <main>
+                <div class="result-container">
+                    <div id="result" class="result">
+                        <span class="result-text">点击按钮开始选择</span>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button id="selectBtn" class="cyber-button">
+                        <span class="button-text">随机选择</span>
+                        <span class="button-glow"></span>
+                    </button>
+                    <button id="manageBtn" class="cyber-button secondary">
+                        <span class="button-text">管理餐厅</span>
+                        <span class="button-glow"></span>
+                    </button>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-item">
+                        <span class="stat-label">餐厅数量</span>
+                        <span id="totalRestaurants" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">今日选择</span>
+                        <span id="todayCount" class="stat-value">0</span>
+                    </div>
+                </div>
+            </main>
+
+            <footer>
+                <p>© 2026 CYBERPUNK MEAL SELECTOR</p>
+            </footer>
+        </div>
+
+        <!-- 管理页面 -->
+        <div id="managePage" class="page">
+            <header>
+                <h1 class="glitch" data-text="餐厅管理">餐厅管理</h1>
+                <p class="subtitle">RESTAURANT MANAGEMENT</p>
+            </header>
+
+            <main>
+                <div class="manage-section">
+                    <div class="add-form">
+                        <h2>添加餐厅</h2>
+                        <div class="form-group">
+                            <label for="restaurantName">餐厅名称</label>
+                            <input type="text" id="restaurantName" placeholder="输入餐厅名称..." maxlength="50">
+                        </div>
+                        <div class="form-group">
+                            <label for="restaurantWeight">权重 (1-100)</label>
+                            <input type="number" id="restaurantWeight" min="1" max="100" value="10" placeholder="权重值">
+                            <span class="hint">权重越高，被选中的概率越大</span>
+                        </div>
+                        <button id="addBtn" class="cyber-button">
+                            <span class="button-text">+ 添加餐厅</span>
+                            <span class="button-glow"></span>
+                        </button>
+                    </div>
+
+                    <div class="restaurant-list">
+                        <h2>餐厅列表</h2>
+                        <div id="restaurantItems" class="items-container">
+                            <p class="empty-message">暂无餐厅，请添加...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button id="backBtn" class="cyber-button secondary">
+                        <span class="button-text">返回主页</span>
+                        <span class="button-glow"></span>
+                    </button>
+                </div>
+            </main>
+
+            <footer>
+                <p>© 2026 CYBERPUNK MEAL SELECTOR</p>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        // ========== 数据管理 ==========
+        function initDefaultRestaurants() {
+            const restaurants = getRestaurants();
+            if (restaurants.length === 0) {
+                const defaultRestaurants = [
+                    { id: 1, name: '麦当劳', weight: 10 },
+                    { id: 2, name: '肯德基', weight: 10 },
+                    { id: 3, name: '黄焖鸡米饭', weight: 15 },
+                    { id: 4, name: '沙县小吃', weight: 15 },
+                    { id: 5, name: '兰州拉面', weight: 12 }
+                ];
+                saveRestaurants(defaultRestaurants);
+            }
+        }
+
+        function getRestaurants() {
+            const data = localStorage.getItem('restaurants');
+            return data ? JSON.parse(data) : [];
+        }
+
+        function saveRestaurants(restaurants) {
+            localStorage.setItem('restaurants', JSON.stringify(restaurants));
+        }
+
+        function getTodayCount() {
+            const today = new Date().toDateString();
+            const savedDate = localStorage.getItem('lastDate');
+            if (savedDate !== today) {
+                localStorage.setItem('lastDate', today);
+                localStorage.setItem('todayCount', '0');
+                return 0;
+            }
+            return parseInt(localStorage.getItem('todayCount') || '0');
+        }
+
+        function incrementTodayCount() {
+            const count = getTodayCount() + 1;
+            localStorage.setItem('todayCount', count.toString());
+            return count;
+        }
+
+        function generateId() {
+            const restaurants = getRestaurants();
+            if (restaurants.length === 0) return 1;
+            return Math.max(...restaurants.map(r => r.id)) + 1;
+        }
+
+        // ========== 页面切换 ==========
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        // ========== 主页逻辑 ==========
+        function selectRestaurant(restaurants) {
+            if (restaurants.length === 0) return null;
+
+            const totalWeight = restaurants.reduce((sum, r) => sum + r.weight, 0);
+            let random = Math.random() * totalWeight;
+
+            for (const restaurant of restaurants) {
+                random -= restaurant.weight;
+                if (random <= 0) {
+                    return restaurant;
+                }
+            }
+
+            return restaurants[0];
+        }
+
+        function updateStats() {
+            const restaurants = getRestaurants();
+            const todayCount = getTodayCount();
+
+            document.getElementById('totalRestaurants').textContent = restaurants.length;
+            document.getElementById('todayCount').textContent = todayCount;
+        }
+
+        function performSelection() {
+            const restaurants = getRestaurants();
+
+            if (restaurants.length === 0) {
+                alert('请先添加餐厅！');
+                return;
+            }
+
+            const resultElement = document.getElementById('result');
+            const resultText = resultElement.querySelector('.result-text');
+            const selectBtn = document.getElementById('selectBtn');
+
+            selectBtn.disabled = true;
+            resultElement.classList.add('selecting');
+
+            let count = 0;
+            const maxCount = 20;
+            const interval = setInterval(() => {
+                const randomRestaurant = restaurants[Math.floor(Math.random() * restaurants.length)];
+                resultText.textContent = randomRestaurant.name;
+                count++;
+
+                if (count >= maxCount) {
+                    clearInterval(interval);
+
+                    const selected = selectRestaurant(restaurants);
+                    setTimeout(() => {
+                        resultElement.classList.remove('selecting');
+                        resultText.textContent = selected.name;
+
+                        incrementTodayCount();
+                        updateStats();
+
+                        selectBtn.disabled = false;
+
+                        resultElement.style.animation = 'none';
+                        setTimeout(() => {
+                            resultElement.style.animation = '';
+                        }, 10);
+                    }, 200);
+                }
+            }, 50);
+        }
+
+        // ========== 管理页面逻辑 ==========
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function renderRestaurants() {
+            const restaurants = getRestaurants();
+            const container = document.getElementById('restaurantItems');
+
+            if (restaurants.length === 0) {
+                container.innerHTML = '<p class="empty-message">暂无餐厅，请添加...</p>';
+                return;
+            }
+
+            const maxWeight = Math.max(...restaurants.map(r => r.weight));
+
+            container.innerHTML = restaurants.map(restaurant => `
+                <div class="restaurant-item" data-id="${restaurant.id}">
+                    <div class="restaurant-info">
+                        <div class="restaurant-name">${escapeHtml(restaurant.name)}</div>
+                        <div class="restaurant-weight">权重: ${restaurant.weight}</div>
+                        <div class="weight-bar">
+                            <div class="weight-fill" style="width: ${(restaurant.weight / maxWeight) * 100}%"></div>
+                        </div>
+                    </div>
+                    <div class="restaurant-actions">
+                        <button class="action-btn edit-btn" onclick="editRestaurant(${restaurant.id})">编辑</button>
+                        <button class="action-btn delete-btn" onclick="deleteRestaurant(${restaurant.id})">删除</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function addRestaurant() {
+            const nameInput = document.getElementById('restaurantName');
+            const weightInput = document.getElementById('restaurantWeight');
+
+            const name = nameInput.value.trim();
+            const weight = parseInt(weightInput.value);
+
+            if (!name) {
+                alert('请输入餐厅名称！');
+                return;
+            }
+
+            if (weight < 1 || weight > 100) {
+                alert('权重必须在 1-100 之间！');
+                return;
+            }
+
+            const restaurants = getRestaurants();
+            if (restaurants.some(r => r.name === name)) {
+                alert('该餐厅已存在！');
+                return;
+            }
+
+            const newRestaurant = {
+                id: generateId(),
+                name: name,
+                weight: weight
+            };
+
+            restaurants.push(newRestaurant);
+            saveRestaurants(restaurants);
+
+            nameInput.value = '';
+            weightInput.value = '10';
+
+            renderRestaurants();
+            showToast('添加成功！');
+        }
+
+        function deleteRestaurant(id) {
+            if (!confirm('确定要删除这个餐厅吗？')) {
+                return;
+            }
+
+            const restaurants = getRestaurants();
+            const filtered = restaurants.filter(r => r.id !== id);
+            saveRestaurants(filtered);
+            renderRestaurants();
+
+            showToast('删除成功！');
+        }
+
+        function editRestaurant(id) {
+            const restaurants = getRestaurants();
+            const restaurant = restaurants.find(r => r.id === id);
+
+            if (!restaurant) return;
+
+            const newName = prompt('请输入新的餐厅名称:', restaurant.name);
+            if (newName === null || newName.trim() === '') return;
+
+            const newWeight = prompt('请输入新的权重 (1-100):', restaurant.weight);
+            if (newWeight === null) return;
+
+            const weight = parseInt(newWeight);
+            if (isNaN(weight) || weight < 1 || weight > 100) {
+                alert('权重必须在 1-100 之间！');
+                return;
+            }
+
+            if (restaurants.some(r => r.id !== id && r.name === newName.trim())) {
+                alert('该餐厅名称已存在！');
+                return;
+            }
+
+            restaurant.name = newName.trim();
+            restaurant.weight = weight;
+
+            saveRestaurants(restaurants);
+            renderRestaurants();
+
+            showToast('更新成功！');
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.textContent = message;
+            toast.className = 'toast';
+
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease-out';
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
+
+        // ========== 初始化 ==========
+        document.addEventListener('DOMContentLoaded', () => {
+            initDefaultRestaurants();
+            updateStats();
+
+            // 主页事件
+            document.getElementById('selectBtn').addEventListener('click', performSelection);
+            document.getElementById('manageBtn').addEventListener('click', () => {
+                showPage('managePage');
+                renderRestaurants();
+            });
+
+            // 管理页面事件
+            document.getElementById('addBtn').addEventListener('click', addRestaurant);
+            document.getElementById('backBtn').addEventListener('click', () => {
+                showPage('homePage');
+                updateStats();
+            });
+
+            // 回车添加餐厅
+            document.getElementById('restaurantName').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    addRestaurant();
+                }
+            });
+
+            document.getElementById('restaurantWeight').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    addRestaurant();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
