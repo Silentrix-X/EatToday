@@ -361,10 +361,12 @@
         }
 
         .scene-select-row {
-            display: grid;
-            grid-template-columns: 1fr auto;
-            gap: 15px;
-            align-items: end;
+            margin-bottom: 12px;
+        }
+
+        .scene-select-actions {
+            display: flex;
+            width: 100%;
             margin-bottom: 20px;
         }
 
@@ -392,10 +394,18 @@
         }
 
         .scene-add-row {
-            display: grid;
-            grid-template-columns: 1fr auto;
-            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .scene-add-actions {
+            display: flex;
+            width: 100%;
             margin-bottom: 14px;
+        }
+
+        .scene-select-actions .cyber-button,
+        .scene-add-actions .cyber-button {
+            width: 100%;
         }
 
         .scene-add-row input {
@@ -752,6 +762,8 @@
                             <label for="currentSceneSelect">当前场景</label>
                             <select id="currentSceneSelect"></select>
                         </div>
+                    </div>
+                    <div class="scene-select-actions">
                         <button id="applySceneBtn" class="cyber-button secondary">
                             <span class="button-text">应用场景</span>
                             <span class="button-glow"></span>
@@ -761,6 +773,8 @@
                     <div class="scene-manage">
                         <div class="scene-add-row">
                             <input type="text" id="sceneNameInput" placeholder="新增场景，如：家里、公司" maxlength="30">
+                        </div>
+                        <div class="scene-add-actions">
                             <button id="addSceneBtn" class="cyber-button">
                                 <span class="button-text">+ 添加场景</span>
                                 <span class="button-glow"></span>
