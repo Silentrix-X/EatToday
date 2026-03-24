@@ -458,6 +458,132 @@
             color: var(--neon-purple);
         }
 
+        .data-panel {
+            background: var(--card-bg);
+            border: 2px solid var(--neon-blue);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
+        }
+
+        .data-panel h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem;
+            color: var(--neon-blue);
+            margin-bottom: 18px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .data-actions {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .import-options {
+            border-top: 1px solid rgba(0, 243, 255, 0.25);
+            padding-top: 12px;
+        }
+
+        .option-title {
+            color: var(--neon-purple);
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .option-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px 14px;
+        }
+
+        .option-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--neon-cyan);
+            font-size: 0.95rem;
+        }
+
+        .option-item input[type='checkbox'] {
+            accent-color: var(--neon-blue);
+            width: 16px;
+            height: 16px;
+        }
+
+        .import-selection {
+            border-top: 1px solid rgba(0, 243, 255, 0.25);
+            margin-top: 12px;
+            padding-top: 12px;
+        }
+
+        .import-summary {
+            color: rgba(0, 243, 255, 0.75);
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .import-select-actions {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .import-select-actions .action-btn {
+            padding: 6px 10px;
+            font-size: 0.85rem;
+        }
+
+        .import-list-box {
+            max-height: 180px;
+            overflow-y: auto;
+            border: 1px solid rgba(0, 243, 255, 0.35);
+            border-radius: 8px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.35);
+            margin-bottom: 12px;
+        }
+
+        .import-list-box::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .import-list-box::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+        }
+
+        .import-list-box::-webkit-scrollbar-thumb {
+            background: var(--neon-blue);
+            border-radius: 4px;
+        }
+
+        .import-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 7px;
+            color: var(--neon-cyan);
+        }
+
+        .import-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .import-item input[type='checkbox'] {
+            accent-color: var(--neon-blue);
+            width: 16px;
+            height: 16px;
+        }
+
+        .import-item.disabled {
+            opacity: 0.45;
+        }
+
         .add-form,
         .restaurant-list {
             background: var(--card-bg);
@@ -784,6 +910,53 @@
                     </div>
                 </div>
 
+                <div class="data-panel">
+                    <h2>数据导入导出</h2>
+                    <div class="data-actions">
+                        <button id="exportDataBtn" class="cyber-button secondary">
+                            <span class="button-text">导出数据</span>
+                            <span class="button-glow"></span>
+                        </button>
+                        <button id="importDataBtn" class="cyber-button">
+                            <span class="button-text">导入数据文件</span>
+                            <span class="button-glow"></span>
+                        </button>
+                    </div>
+
+                    <div id="importSelection" class="import-selection" style="display:none;">
+                        <p id="importSummary" class="import-summary"></p>
+
+                        <p class="option-title">选择要导入的场景</p>
+                        <div class="import-select-actions">
+                            <button id="selectAllScenesBtn" class="action-btn">全选场景</button>
+                            <button id="clearAllScenesBtn" class="action-btn">清空场景</button>
+                        </div>
+                        <div id="importSceneList" class="import-list-box"></div>
+
+                        <p class="option-title">选择要导入的餐厅</p>
+                        <div class="import-select-actions">
+                            <button id="selectAllRestaurantsBtn" class="action-btn">全选餐厅</button>
+                            <button id="clearAllRestaurantsBtn" class="action-btn">清空餐厅</button>
+                        </div>
+                        <div id="importRestaurantList" class="import-list-box"></div>
+
+                        <div class="option-grid">
+                            <label class="option-item">
+                                <input type="checkbox" id="importTodayCountOpt">
+                                <span>导入今日选择次数</span>
+                            </label>
+                        </div>
+
+                        <div class="scene-add-actions" style="margin-top:14px;margin-bottom:0;">
+                            <button id="confirmImportBtn" class="cyber-button">
+                                <span class="button-text">确认导入选中项</span>
+                                <span class="button-glow"></span>
+                            </button>
+                        </div>
+                    </div>
+                    <input type="file" id="importFileInput" accept="application/json" style="display:none;">
+                </div>
+
                 <div class="manage-section">
                     <div class="add-form">
                         <h2>添加餐厅</h2>
@@ -940,6 +1113,46 @@
             return Math.max(...restaurants.map(r => r.id)) + 1;
         }
 
+        function normalizeScenes() {
+            const scenes = getScenes();
+            if (scenes.length === 0) {
+                initDefaultScenes();
+                return getScenes();
+            }
+
+            const nameSet = new Set();
+            const normalized = [];
+            let maxId = 0;
+            scenes.forEach((scene, index) => {
+                const rawName = typeof scene.name === 'string' ? scene.name.trim() : '';
+                if (!rawName) return;
+                if (nameSet.has(rawName)) return;
+                nameSet.add(rawName);
+
+                const sceneId = Number.isInteger(scene.id) && scene.id > 0 ? scene.id : index + 1;
+                maxId = Math.max(maxId, sceneId);
+                normalized.push({ id: sceneId, name: rawName });
+            });
+
+            if (normalized.length === 0) {
+                const fallback = [{ id: 1, name: '默认' }];
+                saveScenes(fallback);
+                localStorage.setItem('currentSceneId', '1');
+                return fallback;
+            }
+
+            if (normalized.length !== scenes.length) {
+                saveScenes(normalized);
+            }
+
+            const currentSceneId = getCurrentSceneId();
+            if (!normalized.some(scene => scene.id === currentSceneId)) {
+                localStorage.setItem('currentSceneId', String(normalized[0].id));
+            }
+
+            return normalized;
+        }
+
         // ========== 页面切换 ==========
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(page => {
@@ -1075,9 +1288,10 @@
                 return;
             }
 
+            const currentSceneId = getCurrentSceneId();
             const restaurants = getRestaurants();
-            if (restaurants.some(r => r.name === name)) {
-                alert('该餐厅已存在！');
+            if (restaurants.some(r => r.sceneId === currentSceneId && r.name === name)) {
+                alert('当前场景下该餐厅已存在！');
                 return;
             }
 
@@ -1085,7 +1299,7 @@
                 id: generateId(),
                 name: name,
                 weight: weight,
-                sceneId: getCurrentSceneId()
+                sceneId: currentSceneId
             };
 
             restaurants.push(newRestaurant);
@@ -1129,8 +1343,8 @@
                 return;
             }
 
-            if (restaurants.some(r => r.id !== id && r.name === newName.trim())) {
-                alert('该餐厅名称已存在！');
+            if (restaurants.some(r => r.id !== id && r.sceneId === restaurant.sceneId && r.name === newName.trim())) {
+                alert('当前场景下该餐厅名称已存在！');
                 return;
             }
 
@@ -1274,6 +1488,249 @@
             showToast('场景删除成功！');
         }
 
+        let pendingImportData = null;
+
+        function exportData() {
+            const payload = {
+                version: 1,
+                exportedAt: new Date().toISOString(),
+                scenes: getScenes(),
+                restaurants: getRestaurants(),
+                currentSceneId: getCurrentSceneId(),
+                todayCount: getTodayCount(),
+                lastDate: localStorage.getItem('lastDate')
+            };
+
+            const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const dateTag = new Date().toISOString().slice(0, 10);
+            a.href = url;
+            a.download = `eat-today-backup-${dateTag}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('导出成功！');
+        }
+
+        function buildImportData(parsed) {
+            const importedScenes = [];
+            const sceneNameSet = new Set();
+            if (Array.isArray(parsed.scenes)) {
+                parsed.scenes.forEach((scene, index) => {
+                    const name = typeof scene.name === 'string' ? scene.name.trim() : '';
+                    if (!name || sceneNameSet.has(name)) return;
+                    sceneNameSet.add(name);
+                    importedScenes.push({
+                        id: Number.isInteger(scene.id) && scene.id > 0 ? scene.id : index + 1,
+                        name
+                    });
+                });
+            }
+
+            if (importedScenes.length === 0) {
+                return null;
+            }
+
+            const validSceneIds = new Set(importedScenes.map(scene => scene.id));
+            const importedRestaurants = [];
+            const restaurantKeySet = new Set();
+            if (Array.isArray(parsed.restaurants)) {
+                parsed.restaurants.forEach((item) => {
+                    const name = typeof item.name === 'string' ? item.name.trim() : '';
+                    if (!name) return;
+                    const rawWeight = parseInt(item.weight, 10);
+                    const weight = Math.min(100, Math.max(1, Number.isNaN(rawWeight) ? 10 : rawWeight));
+                    const sceneId = Number.isInteger(item.sceneId) && validSceneIds.has(item.sceneId)
+                        ? item.sceneId
+                        : importedScenes[0].id;
+                    const uniqueKey = `${sceneId}::${name}`;
+                    if (restaurantKeySet.has(uniqueKey)) return;
+                    restaurantKeySet.add(uniqueKey);
+                    importedRestaurants.push({ name, weight, sceneId });
+                });
+            }
+
+            const fallbackCurrentSceneId = importedScenes[0].id;
+            const currentSceneId = Number.isInteger(parsed.currentSceneId) && validSceneIds.has(parsed.currentSceneId)
+                ? parsed.currentSceneId
+                : fallbackCurrentSceneId;
+
+            return {
+                scenes: importedScenes,
+                restaurants: importedRestaurants,
+                currentSceneId,
+                todayCount: parseInt(parsed.todayCount, 10),
+                lastDate: typeof parsed.lastDate === 'string' ? parsed.lastDate : ''
+            };
+        }
+
+        function syncRestaurantChecksByScenes() {
+            const selectedSceneIds = new Set(
+                Array.from(document.querySelectorAll('.import-scene-checkbox:checked'))
+                    .map(item => parseInt(item.value, 10))
+            );
+            document.querySelectorAll('.import-restaurant-checkbox').forEach((checkbox) => {
+                const sceneId = parseInt(checkbox.dataset.sceneId, 10);
+                const row = checkbox.closest('.import-item');
+                const enabled = selectedSceneIds.has(sceneId);
+                checkbox.disabled = !enabled;
+                if (!enabled) {
+                    checkbox.checked = false;
+                    row.classList.add('disabled');
+                } else {
+                    row.classList.remove('disabled');
+                }
+            });
+        }
+
+        function renderImportSelection() {
+            if (!pendingImportData) return;
+            const sceneList = document.getElementById('importSceneList');
+            const restaurantList = document.getElementById('importRestaurantList');
+            const summary = document.getElementById('importSummary');
+            const sceneNameMap = new Map(pendingImportData.scenes.map(item => [item.id, item.name]));
+
+            sceneList.innerHTML = pendingImportData.scenes.map(scene => `
+                <label class="import-item">
+                    <input class="import-scene-checkbox" type="checkbox" value="${scene.id}" checked>
+                    <span>${escapeHtml(scene.name)}</span>
+                </label>
+            `).join('');
+
+            restaurantList.innerHTML = pendingImportData.restaurants.length === 0
+                ? '<p class="empty-message">文件中没有可导入的餐厅</p>'
+                : pendingImportData.restaurants.map((item, index) => `
+                    <label class="import-item">
+                        <input class="import-restaurant-checkbox" type="checkbox" data-index="${index}" data-scene-id="${item.sceneId}" checked>
+                        <span>${escapeHtml(item.name)}（${escapeHtml(sceneNameMap.get(item.sceneId) || '未知场景')}，权重 ${item.weight}）</span>
+                    </label>
+                `).join('');
+
+            summary.textContent = `已加载：${pendingImportData.scenes.length} 个场景，${pendingImportData.restaurants.length} 个餐厅`;
+            document.getElementById('importSelection').style.display = 'block';
+
+            document.querySelectorAll('.import-scene-checkbox').forEach((checkbox) => {
+                checkbox.addEventListener('change', syncRestaurantChecksByScenes);
+            });
+            syncRestaurantChecksByScenes();
+        }
+
+        function importDataFile(file) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                let parsed;
+                try {
+                    parsed = JSON.parse(reader.result);
+                } catch (error) {
+                    alert('导入失败：文件不是合法的 JSON');
+                    return;
+                }
+
+                pendingImportData = buildImportData(parsed);
+                if (!pendingImportData) {
+                    alert('导入失败：文件中缺少可用场景数据');
+                    return;
+                }
+                renderImportSelection();
+                showToast('文件解析完成，请勾选要导入的场景和餐厅');
+            };
+            reader.readAsText(file, 'utf-8');
+        }
+
+        function applyImportSelection() {
+            if (!pendingImportData) {
+                alert('请先选择导入文件！');
+                return;
+            }
+
+            const selectedSourceSceneIds = new Set(
+                Array.from(document.querySelectorAll('.import-scene-checkbox:checked'))
+                    .map(item => parseInt(item.value, 10))
+            );
+            if (selectedSourceSceneIds.size === 0) {
+                alert('请至少选择一个场景！');
+                return;
+            }
+
+            const selectedRestaurantIndexes = Array.from(document.querySelectorAll('.import-restaurant-checkbox:checked'))
+                .map(item => parseInt(item.dataset.index, 10))
+                .filter(index => !Number.isNaN(index));
+
+            const workingScenes = getScenes();
+            let nextSceneId = workingScenes.length > 0 ? Math.max(...workingScenes.map(item => item.id)) + 1 : 1;
+            const sourceToTargetSceneIdMap = new Map();
+
+            pendingImportData.scenes.forEach((scene) => {
+                if (!selectedSourceSceneIds.has(scene.id)) return;
+                const existed = workingScenes.find(item => item.name === scene.name);
+                if (existed) {
+                    sourceToTargetSceneIdMap.set(scene.id, existed.id);
+                    return;
+                }
+                const createdScene = { id: nextSceneId++, name: scene.name };
+                workingScenes.push(createdScene);
+                sourceToTargetSceneIdMap.set(scene.id, createdScene.id);
+            });
+            saveScenes(workingScenes);
+
+            const workingRestaurants = getRestaurants();
+            let nextRestaurantId = workingRestaurants.length > 0 ? Math.max(...workingRestaurants.map(item => item.id)) + 1 : 1;
+            let importedCount = 0;
+            let updatedCount = 0;
+
+            selectedRestaurantIndexes.forEach((index) => {
+                const sourceRestaurant = pendingImportData.restaurants[index];
+                if (!sourceRestaurant) return;
+                if (!selectedSourceSceneIds.has(sourceRestaurant.sceneId)) return;
+
+                const targetSceneId = sourceToTargetSceneIdMap.get(sourceRestaurant.sceneId);
+                if (!targetSceneId) return;
+
+                const existed = workingRestaurants.find(item =>
+                    item.sceneId === targetSceneId && item.name === sourceRestaurant.name
+                );
+                if (existed) {
+                    existed.weight = sourceRestaurant.weight;
+                    updatedCount++;
+                    return;
+                }
+
+                workingRestaurants.push({
+                    id: nextRestaurantId++,
+                    name: sourceRestaurant.name,
+                    weight: sourceRestaurant.weight,
+                    sceneId: targetSceneId
+                });
+                importedCount++;
+            });
+            saveRestaurants(workingRestaurants);
+
+            const mappedCurrentSceneId = sourceToTargetSceneIdMap.get(pendingImportData.currentSceneId);
+            if (mappedCurrentSceneId) {
+                localStorage.setItem('currentSceneId', String(mappedCurrentSceneId));
+            }
+
+            if (document.getElementById('importTodayCountOpt').checked) {
+                const nextTodayCount = Number.isNaN(pendingImportData.todayCount) ? 0 : Math.max(0, pendingImportData.todayCount);
+                localStorage.setItem('todayCount', String(nextTodayCount));
+                if (pendingImportData.lastDate && pendingImportData.lastDate.trim()) {
+                    localStorage.setItem('lastDate', pendingImportData.lastDate);
+                } else {
+                    localStorage.setItem('lastDate', new Date().toDateString());
+                }
+            }
+
+            normalizeScenes();
+            normalizeRestaurantsForScenes();
+            renderSceneOptions();
+            renderScenes();
+            renderRestaurants();
+            updateStats();
+            showToast(`导入完成：新增 ${importedCount}，更新 ${updatedCount}`);
+        }
+
         function showToast(message) {
             const toast = document.createElement('div');
             toast.textContent = message;
@@ -1293,6 +1750,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             initDefaultScenes();
             initDefaultRestaurants();
+            normalizeScenes();
             normalizeRestaurantsForScenes();
             updateStats();
 
@@ -1309,6 +1767,41 @@
             document.getElementById('addBtn').addEventListener('click', addRestaurant);
             document.getElementById('applySceneBtn').addEventListener('click', applyCurrentScene);
             document.getElementById('addSceneBtn').addEventListener('click', addScene);
+            document.getElementById('exportDataBtn').addEventListener('click', exportData);
+            document.getElementById('importDataBtn').addEventListener('click', () => {
+                document.getElementById('importFileInput').click();
+            });
+            document.getElementById('importFileInput').addEventListener('change', (e) => {
+                const file = e.target.files && e.target.files[0];
+                if (!file) return;
+                importDataFile(file);
+                e.target.value = '';
+            });
+            document.getElementById('confirmImportBtn').addEventListener('click', applyImportSelection);
+            document.getElementById('selectAllScenesBtn').addEventListener('click', () => {
+                document.querySelectorAll('.import-scene-checkbox').forEach((checkbox) => {
+                    checkbox.checked = true;
+                });
+                syncRestaurantChecksByScenes();
+            });
+            document.getElementById('clearAllScenesBtn').addEventListener('click', () => {
+                document.querySelectorAll('.import-scene-checkbox').forEach((checkbox) => {
+                    checkbox.checked = false;
+                });
+                syncRestaurantChecksByScenes();
+            });
+            document.getElementById('selectAllRestaurantsBtn').addEventListener('click', () => {
+                document.querySelectorAll('.import-restaurant-checkbox').forEach((checkbox) => {
+                    if (!checkbox.disabled) {
+                        checkbox.checked = true;
+                    }
+                });
+            });
+            document.getElementById('clearAllRestaurantsBtn').addEventListener('click', () => {
+                document.querySelectorAll('.import-restaurant-checkbox').forEach((checkbox) => {
+                    checkbox.checked = false;
+                });
+            });
             document.getElementById('backBtn').addEventListener('click', () => {
                 showPage('homePage');
                 updateStats();
