@@ -342,6 +342,112 @@
             gap: 30px;
         }
 
+        .scene-panel {
+            background: var(--card-bg);
+            border: 2px solid var(--neon-purple);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 20px rgba(157, 0, 255, 0.2);
+        }
+
+        .scene-panel h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem;
+            color: var(--neon-purple);
+            margin-bottom: 18px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .scene-select-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 15px;
+            align-items: end;
+            margin-bottom: 20px;
+        }
+
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--neon-cyan);
+            border-radius: 5px;
+            color: var(--neon-cyan);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
+        }
+
+        .scene-manage {
+            border-top: 1px solid rgba(157, 0, 255, 0.35);
+            padding-top: 16px;
+        }
+
+        .scene-add-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .scene-add-row input {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--neon-cyan);
+            border-radius: 5px;
+            color: var(--neon-cyan);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .scene-add-row input:focus {
+            outline: none;
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
+        }
+
+        .scene-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .scene-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--neon-purple);
+            border-radius: 8px;
+            padding: 10px 12px;
+        }
+
+        .scene-item.current {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 10px rgba(0, 243, 255, 0.25);
+        }
+
+        .scene-name {
+            color: var(--neon-cyan);
+            font-weight: 600;
+        }
+
+        .scene-badge {
+            margin-left: 8px;
+            font-size: 0.75rem;
+            color: var(--neon-purple);
+        }
+
         .add-form,
         .restaurant-list {
             background: var(--card-bg);
@@ -612,6 +718,10 @@
 
                 <div class="stats">
                     <div class="stat-item">
+                        <span class="stat-label">当前场景</span>
+                        <span id="currentSceneDisplay" class="stat-value">-</span>
+                    </div>
+                    <div class="stat-item">
                         <span class="stat-label">餐厅数量</span>
                         <span id="totalRestaurants" class="stat-value">0</span>
                     </div>
@@ -635,6 +745,31 @@
             </header>
 
             <main>
+                <div class="scene-panel">
+                    <h2>场景设置</h2>
+                    <div class="scene-select-row">
+                        <div class="form-group">
+                            <label for="currentSceneSelect">当前场景</label>
+                            <select id="currentSceneSelect"></select>
+                        </div>
+                        <button id="applySceneBtn" class="cyber-button secondary">
+                            <span class="button-text">应用场景</span>
+                            <span class="button-glow"></span>
+                        </button>
+                    </div>
+
+                    <div class="scene-manage">
+                        <div class="scene-add-row">
+                            <input type="text" id="sceneNameInput" placeholder="新增场景，如：家里、公司" maxlength="30">
+                            <button id="addSceneBtn" class="cyber-button">
+                                <span class="button-text">+ 添加场景</span>
+                                <span class="button-glow"></span>
+                            </button>
+                        </div>
+                        <div id="sceneItems" class="scene-list"></div>
+                    </div>
+                </div>
+
                 <div class="manage-section">
                     <div class="add-form">
                         <h2>添加餐厅</h2>
@@ -680,12 +815,13 @@
         function initDefaultRestaurants() {
             const restaurants = getRestaurants();
             if (restaurants.length === 0) {
+                const currentSceneId = getCurrentSceneId();
                 const defaultRestaurants = [
-                    { id: 1, name: '麦当劳', weight: 10 },
-                    { id: 2, name: '肯德基', weight: 10 },
-                    { id: 3, name: '黄焖鸡米饭', weight: 15 },
-                    { id: 4, name: '沙县小吃', weight: 15 },
-                    { id: 5, name: '兰州拉面', weight: 12 }
+                    { id: 1, name: '麦当劳', weight: 10, sceneId: currentSceneId },
+                    { id: 2, name: '肯德基', weight: 10, sceneId: currentSceneId },
+                    { id: 3, name: '黄焖鸡米饭', weight: 15, sceneId: currentSceneId },
+                    { id: 4, name: '沙县小吃', weight: 15, sceneId: currentSceneId },
+                    { id: 5, name: '兰州拉面', weight: 12, sceneId: currentSceneId }
                 ];
                 saveRestaurants(defaultRestaurants);
             }
@@ -698,6 +834,73 @@
 
         function saveRestaurants(restaurants) {
             localStorage.setItem('restaurants', JSON.stringify(restaurants));
+        }
+
+        function getScenes() {
+            const data = localStorage.getItem('scenes');
+            const scenes = data ? JSON.parse(data) : [];
+            return Array.isArray(scenes) ? scenes : [];
+        }
+
+        function saveScenes(scenes) {
+            localStorage.setItem('scenes', JSON.stringify(scenes));
+        }
+
+        function generateSceneId() {
+            const scenes = getScenes();
+            if (scenes.length === 0) return 1;
+            return Math.max(...scenes.map(s => s.id)) + 1;
+        }
+
+        function initDefaultScenes() {
+            const scenes = getScenes();
+            if (scenes.length === 0) {
+                const defaultScenes = [
+                    { id: 1, name: '默认' },
+                    { id: 2, name: '家里' },
+                    { id: 3, name: '公司' }
+                ];
+                saveScenes(defaultScenes);
+            }
+
+            const currentSceneId = parseInt(localStorage.getItem('currentSceneId') || '', 10);
+            const latestScenes = getScenes();
+            if (!latestScenes.some(scene => scene.id === currentSceneId)) {
+                localStorage.setItem('currentSceneId', String(latestScenes[0].id));
+            }
+        }
+
+        function getCurrentSceneId() {
+            const scenes = getScenes();
+            if (scenes.length === 0) return null;
+            const currentSceneId = parseInt(localStorage.getItem('currentSceneId') || '', 10);
+            if (scenes.some(scene => scene.id === currentSceneId)) {
+                return currentSceneId;
+            }
+            const fallbackId = scenes[0].id;
+            localStorage.setItem('currentSceneId', String(fallbackId));
+            return fallbackId;
+        }
+
+        function getCurrentScene() {
+            const scenes = getScenes();
+            const currentSceneId = getCurrentSceneId();
+            return scenes.find(scene => scene.id === currentSceneId) || null;
+        }
+
+        function normalizeRestaurantsForScenes() {
+            const restaurants = getRestaurants();
+            const currentSceneId = getCurrentSceneId();
+            let changed = false;
+            restaurants.forEach(restaurant => {
+                if (typeof restaurant.sceneId !== 'number') {
+                    restaurant.sceneId = currentSceneId;
+                    changed = true;
+                }
+            });
+            if (changed) {
+                saveRestaurants(restaurants);
+            }
         }
 
         function getTodayCount() {
@@ -749,18 +952,23 @@
         }
 
         function updateStats() {
-            const restaurants = getRestaurants();
+            const currentSceneId = getCurrentSceneId();
+            const restaurants = getRestaurants().filter(r => r.sceneId === currentSceneId);
             const todayCount = getTodayCount();
+            const currentScene = getCurrentScene();
 
             document.getElementById('totalRestaurants').textContent = restaurants.length;
             document.getElementById('todayCount').textContent = todayCount;
+            document.getElementById('currentSceneDisplay').textContent = currentScene ? currentScene.name : '-';
         }
 
         function performSelection() {
-            const restaurants = getRestaurants();
+            const currentSceneId = getCurrentSceneId();
+            const restaurants = getRestaurants().filter(r => r.sceneId === currentSceneId);
 
             if (restaurants.length === 0) {
-                alert('请先添加餐厅！');
+                const currentScene = getCurrentScene();
+                alert(`当前场景（${currentScene ? currentScene.name : '-'}）暂无餐厅，请先添加！`);
                 return;
             }
 
@@ -808,7 +1016,8 @@
         }
 
         function renderRestaurants() {
-            const restaurants = getRestaurants();
+            const currentSceneId = getCurrentSceneId();
+            const restaurants = getRestaurants().filter(r => r.sceneId === currentSceneId);
             const container = document.getElementById('restaurantItems');
 
             if (restaurants.length === 0) {
@@ -861,7 +1070,8 @@
             const newRestaurant = {
                 id: generateId(),
                 name: name,
-                weight: weight
+                weight: weight,
+                sceneId: getCurrentSceneId()
             };
 
             restaurants.push(newRestaurant);
@@ -919,6 +1129,137 @@
             showToast('更新成功！');
         }
 
+        function renderSceneOptions() {
+            const scenes = getScenes();
+            const currentSceneId = getCurrentSceneId();
+            const select = document.getElementById('currentSceneSelect');
+            select.innerHTML = scenes.map(scene => `
+                <option value="${scene.id}" ${scene.id === currentSceneId ? 'selected' : ''}>${escapeHtml(scene.name)}</option>
+            `).join('');
+        }
+
+        function renderScenes() {
+            const scenes = getScenes();
+            const currentSceneId = getCurrentSceneId();
+            const container = document.getElementById('sceneItems');
+            container.innerHTML = scenes.map(scene => `
+                <div class="scene-item ${scene.id === currentSceneId ? 'current' : ''}">
+                    <div>
+                        <span class="scene-name">${escapeHtml(scene.name)}</span>
+                        ${scene.id === currentSceneId ? '<span class="scene-badge">当前</span>' : ''}
+                    </div>
+                    <div class="restaurant-actions">
+                        <button class="action-btn edit-btn" onclick="renameScene(${scene.id})">重命名</button>
+                        <button class="action-btn delete-btn" onclick="deleteScene(${scene.id})">删除</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function applyCurrentScene() {
+            const select = document.getElementById('currentSceneSelect');
+            const sceneId = parseInt(select.value, 10);
+            const scenes = getScenes();
+            if (!scenes.some(scene => scene.id === sceneId)) {
+                alert('所选场景不存在！');
+                return;
+            }
+
+            localStorage.setItem('currentSceneId', String(sceneId));
+            renderSceneOptions();
+            renderScenes();
+            renderRestaurants();
+            updateStats();
+            showToast('场景已切换！');
+        }
+
+        function addScene() {
+            const input = document.getElementById('sceneNameInput');
+            const name = input.value.trim();
+            if (!name) {
+                alert('请输入场景名称！');
+                return;
+            }
+
+            const scenes = getScenes();
+            if (scenes.some(scene => scene.name === name)) {
+                alert('该场景已存在！');
+                return;
+            }
+
+            const scene = { id: generateSceneId(), name };
+            scenes.push(scene);
+            saveScenes(scenes);
+            input.value = '';
+
+            renderSceneOptions();
+            renderScenes();
+            showToast('场景添加成功！');
+        }
+
+        function renameScene(id) {
+            const scenes = getScenes();
+            const scene = scenes.find(s => s.id === id);
+            if (!scene) return;
+
+            const newName = prompt('请输入新的场景名称:', scene.name);
+            if (newName === null) return;
+            const trimmed = newName.trim();
+            if (!trimmed) {
+                alert('场景名称不能为空！');
+                return;
+            }
+
+            if (scenes.some(s => s.id !== id && s.name === trimmed)) {
+                alert('场景名称已存在！');
+                return;
+            }
+
+            scene.name = trimmed;
+            saveScenes(scenes);
+            renderSceneOptions();
+            renderScenes();
+            updateStats();
+            showToast('场景更新成功！');
+        }
+
+        function deleteScene(id) {
+            const scenes = getScenes();
+            if (scenes.length <= 1) {
+                alert('至少需要保留一个场景！');
+                return;
+            }
+
+            const currentSceneId = getCurrentSceneId();
+            const targetScene = scenes.find(scene => scene.id === id);
+            if (!targetScene) return;
+
+            const relatedRestaurants = getRestaurants().filter(r => r.sceneId === id);
+            const message = relatedRestaurants.length > 0
+                ? `场景「${targetScene.name}」下有 ${relatedRestaurants.length} 个餐厅，删除后会一起删除。确定继续吗？`
+                : `确定删除场景「${targetScene.name}」吗？`;
+
+            if (!confirm(message)) {
+                return;
+            }
+
+            const nextScenes = scenes.filter(scene => scene.id !== id);
+            saveScenes(nextScenes);
+
+            const restaurants = getRestaurants().filter(r => r.sceneId !== id);
+            saveRestaurants(restaurants);
+
+            if (currentSceneId === id) {
+                localStorage.setItem('currentSceneId', String(nextScenes[0].id));
+            }
+
+            renderSceneOptions();
+            renderScenes();
+            renderRestaurants();
+            updateStats();
+            showToast('场景删除成功！');
+        }
+
         function showToast(message) {
             const toast = document.createElement('div');
             toast.textContent = message;
@@ -936,18 +1277,24 @@
 
         // ========== 初始化 ==========
         document.addEventListener('DOMContentLoaded', () => {
+            initDefaultScenes();
             initDefaultRestaurants();
+            normalizeRestaurantsForScenes();
             updateStats();
 
             // 主页事件
             document.getElementById('selectBtn').addEventListener('click', performSelection);
             document.getElementById('manageBtn').addEventListener('click', () => {
                 showPage('managePage');
+                renderSceneOptions();
+                renderScenes();
                 renderRestaurants();
             });
 
             // 管理页面事件
             document.getElementById('addBtn').addEventListener('click', addRestaurant);
+            document.getElementById('applySceneBtn').addEventListener('click', applyCurrentScene);
+            document.getElementById('addSceneBtn').addEventListener('click', addScene);
             document.getElementById('backBtn').addEventListener('click', () => {
                 showPage('homePage');
                 updateStats();
@@ -963,6 +1310,12 @@
             document.getElementById('restaurantWeight').addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
                     addRestaurant();
+                }
+            });
+
+            document.getElementById('sceneNameInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    addScene();
                 }
             });
         });
